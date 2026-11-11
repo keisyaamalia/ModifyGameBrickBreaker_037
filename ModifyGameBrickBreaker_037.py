@@ -57,3 +57,50 @@ class Ball(GameObject):
         for game_object in game_objects:
             if isinstance(game_object, Brick):
                 game_object.hit()
+
+class Paddle(GameObject):
+    def __init__(self, canvas, x, y):
+        self.width = 80
+        self.height = 10
+        self.ball = None
+        item = canvas.create_rectangle(x - self.width / 2,
+                                       y - self.height / 2,
+                                       x + self.width / 2,
+                                       y + self.height / 2,
+                                       fill='navy')
+        super(Paddle, self).__init__(canvas, item)
+
+    def set_ball(self, ball):
+        self.ball = ball
+
+    def move(self, offset):
+        coords = self.get_position()
+        width = self.canvas.winfo_width()
+        if coords[0] + offset >= 0 and coords[2] + offset <= width:
+            super(Paddle, self).move(offset, 0)
+            if self.ball is not None:
+                self.ball.move(offset, 0)
+
+
+class Brick(GameObject):
+    COLORS = {1: '#ffe135', 2: '#c8a2c8', 3: '#222222'}
+
+    def __init__(self, canvas, x, y, hits):
+        self.width = 75
+        self.height = 20
+        self.hits = hits
+        color = Brick.COLORS[hits]
+        item = canvas.create_rectangle(x - self.width / 2,
+                                       y - self.height / 2,
+                                       x + self.width / 2,
+                                       y + self.height / 2,
+                                       fill=color, tags='brick')
+        super(Brick, self).__init__(canvas, item)
+
+    def hit(self):
+        self.hits -= 1
+        if self.hits == 0:
+            self.delete()
+        else:
+            self.canvas.itemconfig(self.item,
+                                   fill=Brick.COLORS[self.hits])
