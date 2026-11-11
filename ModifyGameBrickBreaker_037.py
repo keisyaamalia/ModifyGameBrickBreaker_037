@@ -153,3 +153,29 @@ class Game(tk.Frame):
     def add_brick(self, x, y, hits):
         brick = Brick(self.canvas, x, y, hits)
         self.items[brick.item] = brick
+
+    def pick_font(self):
+        
+        tersedia = set(tkfont.families())
+        for nama in ('Vector Battle', 'Vector', 'Impact'):
+            if nama in tersedia:
+                return nama
+        return 'Helvetica'
+
+    def draw_text(self, x, y, text, size=40):
+        font = (self.pick_font(), size)
+        return self.canvas.create_text(x, y, text=text,
+                                       font=font)
+
+    def update_lives_text(self):
+        text = 'Nyawa: %s' % self.lives
+        if self.hud is None:
+            self.hud = self.draw_text(50, 20, text, 15)
+        else:
+            self.canvas.itemconfig(self.hud, text=text)
+
+    def start_game(self):
+        self.canvas.unbind('<space>')
+        self.canvas.delete(self.text)
+        self.paddle.ball = None
+        self.game_loop()
