@@ -179,3 +179,34 @@ class Game(tk.Frame):
         self.canvas.delete(self.text)
         self.paddle.ball = None
         self.game_loop()
+
+    def game_loop(self):
+        self.check_collisions()
+        num_bricks = len(self.canvas.find_withtag('brick'))
+        if num_bricks == 0:
+            self.ball.speed = 0
+            self.draw_text(300, 200, 'Kamu menang!')
+        elif self.ball.get_position()[3] >= self.height:
+            self.ball.speed = 0
+            self.lives -= 1
+            self.update_lives_text()
+            if self.lives <= 0:
+                self.draw_text(300, 200, 'Permainan Selesai!')
+            else:
+                self.after(1000, self.setup_game)
+        else:
+            self.ball.update()
+            self.after(50, self.game_loop)
+
+    def check_collisions(self):
+        ball_coords = self.ball.get_position()
+        items = self.canvas.find_overlapping(*ball_coords)
+        objects = [self.items[x] for x in items if x in self.items]
+        self.ball.collide(objects)
+
+
+if __name__ == '__main__':
+    root = tk.Tk()
+    root.title('Halo, Keisya!')
+    game = Game(root)
+    game.mainloop()
