@@ -104,3 +104,52 @@ class Brick(GameObject):
         else:
             self.canvas.itemconfig(self.item,
                                    fill=Brick.COLORS[self.hits])
+
+class Game(tk.Frame):
+    def __init__(self, master):
+        super(Game, self).__init__(master)
+        self.lives = 5
+        self.width = 610
+        self.height = 400
+        self.canvas = tk.Canvas(self, bg='#add8e6',
+                                width=self.width,
+                                height=self.height)
+        self.canvas.pack()
+        self.pack()
+
+        self.items = {}
+        self.ball = None
+        self.text = None
+        self.paddle = Paddle(self.canvas, self.width / 2, 326)
+        self.items[self.paddle.item] = self.paddle
+        for x in range(5, self.width - 5, 75):
+            self.add_brick(x + 37.5, 50, 2)
+            self.add_brick(x + 37.5, 70, 1)
+            self.add_brick(x + 37.5, 90, 1)
+
+        self.hud = None
+        self.setup_game()
+        self.canvas.focus_set()
+        self.canvas.bind('<Left>',
+                         lambda _: self.paddle.move(-15))
+        self.canvas.bind('<Right>',
+                         lambda _: self.paddle.move(15))
+
+    def setup_game(self):
+        self.add_ball()
+        self.update_lives_text()
+        self.text = self.draw_text(300, 200,
+                                   'Tekan Spasi untuk mulai')
+        self.canvas.bind('<space>', lambda _: self.start_game())
+
+    def add_ball(self):
+        if self.ball is not None:
+            self.ball.delete()
+        paddle_coords = self.paddle.get_position()
+        x = (paddle_coords[0] + paddle_coords[2]) * 0.5
+        self.ball = Ball(self.canvas, x, 310)
+        self.paddle.set_ball(self.ball)
+
+    def add_brick(self, x, y, hits):
+        brick = Brick(self.canvas, x, y, hits)
+        self.items[brick.item] = brick
